@@ -1,0 +1,12 @@
+#include <stdio.h>
+#include <math.h>
+int main () {
+    double log2_25_fact = 0.0;
+    for (int i = 1; i <= 25; i++) {
+        log2_25_fact += log2(i);
+    }
+    printf("Approximate number of possible Playfair keys: 2^%.2f\n", log2_25_fact);
+    double log2_effective_keys = log2_25_fact - log2(20000);
+    printf("Approximate number of effectively unique keys: 2^%.2f\n", log2_effective_keys);
+    return 0;
+}
