@@ -1,0 +1,67 @@
+#include <stdio.h>
+#include <math.h>
+
+// Function to compute GCD
+int gcd(int a, int b) {
+    while (b != 0) {
+        int t = b;
+        b = a % b;
+        a = t;
+    }
+    return a;
+}
+
+// Function to find modular inverse of e mod φ(n)
+int modInverse(int e, int phi) {
+    for (int d = 1; d < phi; d++) {
+        if ((e * d) % phi == 1)
+            return d;
+    }
+    return -1;
+}
+
+// Function to perform modular exponentiation (base^exp % mod)
+int modExp(int base, int exp, int mod) {
+    int result = 1;
+    base = base % mod;
+    while (exp > 0) {
+        if (exp % 2 == 1) // if odd
+            result = (result * base) % mod;
+        exp = exp >> 1; // divide by 2
+        base = (base * base) % mod;
+    }
+    return result;
+}
+
+int main() {
+    int p = 3, q = 11;       // Two prime numbers
+    int n = p * q;           // n = p * q = 33
+    int phi = (p - 1) * (q - 1); // φ(n) = (p−1)(q−1) = 20
+
+    int e = 7;  // Choose e such that 1 < e < φ(n), and gcd(e, φ(n)) = 1
+    if (gcd(e, phi) != 1) {
+        printf("e and phi(n) are not coprime!\n");
+        return 1;
+    }
+
+    int d = modInverse(e, phi); // Private key exponent
+    if (d == -1) {
+        printf("Modular inverse of e doesn't exist!\n");
+        return 1;
+    }
+
+    printf("Public Key: (e=%d, n=%d)\n", e, n);
+    printf("Private Key: (d=%d, n=%d)\n", d, n);
+
+    int plaintext;
+    printf("Enter plaintext (number < %d): ", n);
+    scanf("%d", &plaintext);
+
+    int ciphertext = modExp(plaintext, e, n);
+    int decrypted = modExp(ciphertext, d, n);
+
+    printf("Encrypted Ciphertext: %d\n", ciphertext);
+    printf("Decrypted Plaintext: %d\n", decrypted);
+
+    return 0;
+}
