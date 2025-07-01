@@ -1,0 +1,66 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+// Function to convert a keyword to full-length key
+void generateKey(char *str, char *key) {
+    int strLen = strlen(str), keyLen = strlen(key);
+    for (int i = keyLen; i < strLen; i++) {
+        key[i] = key[i % keyLen];
+    }
+    key[strLen] = '\0';
+}
+
+// Encrypt using Vigenère Cipher
+void encrypt(char *plaintext, char *key, char *ciphertext) {
+    int i;
+    for (i = 0; plaintext[i] != '\0'; i++) {
+        char p = toupper(plaintext[i]);
+        char k = toupper(key[i]);
+
+        if (isalpha(p)) {
+            ciphertext[i] = ((p - 'A') + (k - 'A')) % 26 + 'A';
+        } else {
+            ciphertext[i] = p; // Non-alpha characters unchanged
+        }
+    }
+    ciphertext[i] = '\0';
+}
+
+// Decrypt using Vigenère Cipher
+void decrypt(char *ciphertext, char *key, char *plaintext) {
+    int i;
+    for (i = 0; ciphertext[i] != '\0'; i++) {
+        char c = toupper(ciphertext[i]);
+        char k = toupper(key[i]);
+
+        if (isalpha(c)) {
+            plaintext[i] = ((c - k + 26) % 26) + 'A';
+        } else {
+            plaintext[i] = c;
+        }
+    }
+    plaintext[i] = '\0';
+}
+
+int main() {
+    char plaintext[100], keyword[100], key[100], ciphertext[100], decrypted[100];
+
+    printf("Enter plaintext (A-Z only): ");
+    scanf("%s", plaintext);
+
+    printf("Enter keyword: ");
+    scanf("%s", keyword);
+
+    // Generate full-length key
+    strcpy(key, keyword);
+    generateKey(plaintext, key);
+
+    encrypt(plaintext, key, ciphertext);
+    printf("Encrypted Text: %s\n", ciphertext);
+
+    decrypt(ciphertext, key, decrypted);
+    printf("Decrypted Text: %s\n", decrypted);
+
+    return 0;
+}
