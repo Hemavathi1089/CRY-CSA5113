@@ -1,0 +1,58 @@
+#include <stdio.h>
+#include <math.h>
+
+// Function to perform modular exponentiation: (base^exp) % mod
+long long modExp(long long base, long long exp, long long mod) {
+    long long result = 1;
+    base = base % mod;
+
+    while (exp > 0) {
+        if (exp % 2 == 1) // If exp is odd
+            result = (result * base) % mod;
+
+        exp = exp >> 1;     // exp = exp / 2
+        base = (base * base) % mod;
+    }
+    return result;
+}
+
+int main() {
+    long long P, G;     // Publicly known prime modulus and base
+    long long a, b;     // Private keys of User A and User B
+    long long A, B;     // Public keys sent to each other
+    long long secretA, secretB;
+
+    printf("Enter a prime number P (modulus): ");
+    scanf("%lld", &P);
+
+    printf("Enter a primitive root modulo P (G): ");
+    scanf("%lld", &G);
+
+    printf("Enter private key for User A (a): ");
+    scanf("%lld", &a);
+
+    printf("Enter private key for User B (b): ");
+    scanf("%lld", &b);
+
+    // Compute public keys
+    A = modExp(G, a, P); // A = G^a mod P
+    B = modExp(G, b, P); // B = G^b mod P
+
+    printf("\nPublic key of User A (A = G^a mod P): %lld\n", A);
+    printf("Public key of User B (B = G^b mod P): %lld\n", B);
+
+    // Compute shared secret
+    secretA = modExp(B, a, P); // (B^a) mod P
+    secretB = modExp(A, b, P); // (A^b) mod P
+
+    printf("\nShared secret key at User A's side: %lld\n", secretA);
+    printf("Shared secret key at User B's side: %lld\n", secretB);
+
+    if (secretA == secretB) {
+        printf("\n✅ Key Exchange Successful: Shared Secret Established!\n");
+    } else {
+        printf("\n❌ Key Mismatch: Something Went Wrong!\n");
+    }
+
+    return 0;
+}
