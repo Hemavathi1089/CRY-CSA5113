@@ -1,0 +1,80 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+#define SIZE 5
+
+char matrix[SIZE][SIZE];
+
+// Find the position of a character in the matrix
+void findPosition(char ch, int *row, int *col) {
+    if (ch == 'J') ch = 'I';
+    for (int i = 0; i < SIZE; i++)
+        for (int j = 0; j < SIZE; j++)
+            if (matrix[i][j] == ch) {
+                *row = i;
+                *col = j;
+                return;
+            }
+}
+
+// Decrypt a pair of characters using Playfair rules
+void decryptPair(char a, char b, char *x, char *y) {
+    int r1, c1, r2, c2;
+    findPosition(a, &r1, &c1);
+    findPosition(b, &r2, &c2);
+
+    if (r1 == r2) {
+        *x = matrix[r1][(c1 + SIZE - 1) % SIZE];
+        *y = matrix[r2][(c2 + SIZE - 1) % SIZE];
+    } else if (c1 == c2) {
+        *x = matrix[(r1 + SIZE - 1) % SIZE][c1];
+        *y = matrix[(r2 + SIZE - 1) % SIZE][c2];
+    } else {
+        *x = matrix[r1][c2];
+        *y = matrix[r2][c1];
+    }
+}
+
+// Decrypt the ciphertext
+void decryptText(char *ciphertext, char *plaintext) {
+    for (int i = 0; ciphertext[i]; i += 2)
+        decryptPair(ciphertext[i], ciphertext[i + 1], &plaintext[i], &plaintext[i + 1]);
+    plaintext[strlen(ciphertext)] = '\0';
+}
+
+// Example usage
+int main() {
+    char keyword[] = "KENNEDY";
+    char processedKey[26];
+    int seen[26] = {0}, k = 0;
+
+    // Prepare key (remove duplicates, replace J with I)
+    for (int i = 0; keyword[i]; i++) {
+        char ch = toupper(keyword[i]);
+        if (ch == 'J') ch = 'I';
+        if (!isalpha(ch) || seen[ch - 'A']) continue;
+        processedKey[k++] = ch;
+        seen[ch - 'A'] = 1;
+    }
+    for (int i = 0; i < 26; i++) {
+        if ((i + 'A') == 'J' || seen[i]) continue;
+        processedKey[k++] = i + 'A';
+    }
+
+    // Build matrix
+    k = 0;
+    for (int i = 0; i < SIZE; i++)
+        for (int j = 0; j < SIZE; j++)
+            matrix[i][j] = processedKey[k++];
+
+    char ciphertext[100], decrypted[100];
+
+    printf("Enter ciphertext (uppercase, no spaces): ");
+    scanf("%s", ciphertext);
+
+    decryptText(ciphertext, decrypted);
+    printf("Decrypted text: %s\n", decrypted);
+
+    return 0;
+}
