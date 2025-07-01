@@ -1,0 +1,45 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+int key [2][2] = {{9, 4}, {5, 7}};
+int key_inv[2][2] = {{7, 22}, {21, 9}};
+
+void preprocess (char *msg, char *clean) {
+    int j = 0;
+    for (int i = 0; msg[i]; i++) {
+        if (isalpha(msg[i])) {
+            clean[j++] = tolower(msg[i]) == 'j' ? 'i' : tolower(msg[i]);
+        }
+    }
+    if (j % 2!= 0) clean[j++] = 'x';
+    clean[j] = '\0';
+}
+void hillEncrypt(char *msg, char *cipher) {
+    for (int i = 0; msg[i]; i += 2) {
+        int p1 = msg[i] - 'a';
+        int p2 = msg[i + 1] - 'a';
+        cipher[i] = ((key [0][0] * p1 + key [0][1] * p2) % 26) + 'a';
+        cipher [i + 1] = ((key [1][0] * p1 + key [1][1] * p2) % 26) + 'a';
+    }
+    cipher[strlen(msg)] = '\0';
+}
+void hillDecrypt(char *cipher, char *plain) {
+    for (int i = 0; cipher[i]; i += 2) {
+        int c1 = cipher[i] - 'a';
+        int c2 = cipher [i + 1] - 'a';
+        plain[i] = ((key_inv[0][0] * c1 + key_inv[0][1] * c2) % 26) + 'a';
+        plain [i + 1] = ((key_inv[1][0] * c1 + key_inv[1][1] * c2) % 26) + 'a';
+    }
+    plain[strlen(cipher)] = '\0';
+}
+int main () {
+    char input [] = "meet me at the usual place at ten rather than eight oclock";
+    char clean [200], cipher[200], decrypted [200];
+    preprocess (input, clean);
+    printf("Preprocessed plaintext: %s\n", clean);
+    hillEncrypt(clean, cipher);
+    printf("Encrypted text: %s\n", cipher);
+    hillDecrypt(cipher, decrypted);
+    printf("Decrypted text: %s\n", decrypted);
+    return 0;
+}
