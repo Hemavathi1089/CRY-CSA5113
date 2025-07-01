@@ -1,0 +1,86 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+char matrix [5][5] = {
+    {'m', 'f', 'h', 'i', 'k'},
+    {'u', 'n', 'o', 'p', 'q'},
+    {'z', 'v', 'w', 'x', 'y'},
+    {'e', 'l', 'a', 'r', 'g'},
+    {'d', 's', 't', 'b', 'c'}
+};
+void preprocessText(const char *input, char *output) {
+    int len = 0;
+    for (int i = 0; input[i]; i++) {
+        if (isalpha(input[i])) {
+            char ch = tolower(input[i]);
+            output[len++] = (ch == 'j') ? 'i' : ch;
+        }
+    }
+    output[len] = '\0';
+    char temp [200];
+    int j = 0;
+    for (int i = 0; i < len; i += 2) {
+        char a = output[i];
+        char b = (i + 1 < len) ? output[i + 1] : 'x';
+
+        if (a == b) {
+            temp[j++] = a;
+            temp[j++] = 'x';
+            i--; 
+        } else {
+            temp[j++] = a;
+            temp[j++] = b;
+        }
+    }
+    if (j % 2 != 0) temp[j++] = 'x';
+    temp[j] = '\0';
+    strcpy(output, temp);
+}
+void findPosition(char ch, int *row, int *col) {
+    for (int i = 0; i < 5; i++)
+        for (int j = 0; j < 5; j++)
+            if (matrix[i][j] == ch) {
+                *row = i;
+                *col = j;
+                Return;
+            }
+}
+
+void encryptPlayfair(const char *text, char *cipher) {
+    int i = 0, k = 0;
+    while (text[i] && text[i + 1]) {
+        char a = text[i];
+        char b = text[i + 1];
+        int r1, c1, r2, c2;
+
+        findPosition(a, &r1, &c1);
+        findPosition(b, &r2, &c2);
+
+        if (r1 == r2) {
+            cipher[k++] = matrix[r1][(c1 + 1) % 5];
+            cipher[k++] = matrix[r2][(c2 + 1) % 5];
+        } else if (c1 == c2) {
+            cipher[k++] = matrix [(r1 + 1) % 5][c1];
+            cipher[k++] = matrix [(r2 + 1) % 5][c2];
+        } else {
+            cipher[k++] = matrix[r1][c2];
+            cipher[k++] = matrix[r2][c1];
+        }
+        i += 2;
+    }
+    cipher[k] = '\0';
+}
+
+int main () {
+    char input [] = "Must see you over Cadogan West. Coming at once.";
+    char preprocessed[200], encrypted [200];
+
+    preprocessText(input, preprocessed);
+    printf("Preprocessed text: %s\n", preprocessed);
+
+    encryptPlayfair(preprocessed, encrypted);
+    printf("Encrypted message: %s\n", encrypted);
+
+    return 0;
+}
