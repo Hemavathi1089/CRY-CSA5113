@@ -1,0 +1,49 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+#define MAX_LEN 1000
+
+void encrypt (char *plaintext, char *ciphertext, char *key) {
+    int i;
+    for (i = 0; plaintext[i] != '\0'; i++) {
+        char ch = plaintext[i];
+        if (isupper(ch)) {
+            ciphertext[i] = toupper(key[ch - 'A']);
+        } else if (islower(ch)) {
+            ciphertext[i] = tolower(key[ch - 'a']);
+        } else {
+            ciphertext[i] = ch;
+        }
+    }
+    ciphertext[i] = '\0';
+}
+int isValidKey(char *key) {
+    int freq[26] = {0};
+    for (int i = 0; i < 26; i++) {
+        if (!isalpha(key[i]))
+            return 0;
+        int index = toupper(key[i]) - 'A';
+        if (freq[index]++)
+            return 0; 
+    }
+    return 1;
+}
+int main () {
+    char plaintext [MAX_LEN], ciphertext [MAX_LEN];
+    char key [27]; 
+    printf("Enter the plaintext: ");
+    fgets(plaintext, MAX_LEN, stdin);
+    size_t len = strlen(plaintext);
+    if (len > 0 && plaintext [len - 1] == '\n')
+        plaintext [len - 1] = '\0';
+    printf("Enter 26-letter substitution key (A-Z): ");
+    fgets(key, 27, stdin);
+    if (!isValidKey(key)) {
+        printf("Invalid key! Key must be 26 unique alphabetic letters.\n");
+        return 1;
+    }
+    encrypt (plaintext, ciphertext, key);
+    printf("Encrypted message: %s\n", ciphertext);
+    return 0;
+}
